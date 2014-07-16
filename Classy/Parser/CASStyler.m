@@ -697,7 +697,7 @@
         unsigned long flags = dispatch_source_get_data(source);
         if (flags) {
             dispatch_source_cancel(source);
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 callback();
                 [self watchForChangesToFilePath:filePath withCallback:callback];
             });
