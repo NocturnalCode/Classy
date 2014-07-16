@@ -36,7 +36,7 @@
     dispatch_once(&onceToken, ^{
         _defaultStyler = CASStyler.new;
     });
-    
+
     return _defaultStyler;
 }
 
@@ -57,7 +57,7 @@
         // load default style file
         self.filePath = [[NSBundle mainBundle] pathForResource:@"stylesheet.cas" ofType:nil];
     }
-    
+
     // TODO style lookup table to improve speed.
     for (CASStyleNode *styleNode in self.styleNodes) {
         if ([styleNode.styleSelector shouldSelectItem:item]) {
@@ -122,7 +122,7 @@
     for (CASStyleNode *styleNode in styleNodes) {
         // invalid if does not have any properties
         BOOL invalid = !styleNode.styleProperties.count;
-        
+
         // invalid if has deviceSelector and deviceSelector is not valid
         invalid = invalid || (styleNode.deviceSelector && !styleNode.deviceSelector.isValid);
         if (!invalid) {
@@ -280,7 +280,7 @@
 
             for (CASStyleProperty *childStyleProperty in styleProperty.childStyleProperties) {
                 NSArray *childInvocations = [self invocationsForClass:targetClass styleProperty:childStyleProperty keyPath:childKeyPath];
-                
+
                 if (target) {
                     [childInvocations makeObjectsPerformSelector:@selector(invokeWithTarget:) withObject:target];
                 } else {
@@ -427,7 +427,7 @@
     [objectClassDescriptor setArgumentDescriptors:@[[CASArgumentDescriptor argWithValuesByName:textFieldViewModeMap]] forPropertyKey:@cas_propertykey(UITextField, leftViewMode)];
     [objectClassDescriptor setArgumentDescriptors:@[[CASArgumentDescriptor argWithValuesByName:textFieldViewModeMap]] forPropertyKey:@cas_propertykey(UITextField, rightViewMode)];
     [objectClassDescriptor setArgumentDescriptors:@[[CASArgumentDescriptor argWithValuesByName:textFieldViewModeMap]] forPropertyKey:@cas_propertykey(UITextField, clearButtonMode)];
-    
+
     // UIControl
     objectClassDescriptor = [self objectClassDescriptorForClass:UIControl.class];
 
@@ -455,10 +455,10 @@
     [objectClassDescriptor setArgumentDescriptors:@[colorArg, stateArg] setter:@selector(setTitleShadowColor:forState:) forPropertyKey:@"titleShadowColor"];
 
     [objectClassDescriptor setArgumentDescriptors:@[imageArg, stateArg] setter:@selector(setBackgroundImage:forState:) forPropertyKey:@"backgroundImage"];
-    
+
     [objectClassDescriptor setArgumentDescriptors:@[imageArg, stateArg] setter:@selector(setImage:forState:) forPropertyKey:@"image"];
-    
-    
+
+
 
     // UIBarButtonItem
     objectClassDescriptor = [self objectClassDescriptorForClass:UIBarButtonItem.class];
@@ -522,7 +522,7 @@
     [objectClassDescriptor setArgumentDescriptors:@[offsetArg, [CASArgumentDescriptor argWithName:@"segmentType" valuesByName:segmentedControlSegmentMap], barMetricsArg] setter:@selector(setContentPositionAdjustment:forSegmentType:barMetrics:) forPropertyKey:@"contentPositionAdjustment"];
 
     [objectClassDescriptor setArgumentDescriptors:@[dictionaryArg, stateArg] setter:@selector(setTitleTextAttributes:forState:) forPropertyKey:@"titleTextAttributes"];
-    
+
     // UIStepper
     objectClassDescriptor = [self objectClassDescriptorForClass:UIStepper.class];
 
@@ -550,7 +550,7 @@
             @"black"   : @(UIBarStyleBlack),
         };
         [objectClassDescriptor setArgumentDescriptors:@[[CASArgumentDescriptor argWithValuesByName:barStyleMap]] forPropertyKey:@cas_propertykey(UITabBar, barStyle)];
-        
+
         [objectClassDescriptor setArgumentDescriptors:@[boolArg] forPropertyKey:@cas_propertykey(UITabBar, translucent)];
     }
 
@@ -697,8 +697,10 @@
         unsigned long flags = dispatch_source_get_data(source);
         if (flags) {
             dispatch_source_cancel(source);
-            callback();
-            [self watchForChangesToFilePath:filePath withCallback:callback];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                callback();
+                [self watchForChangesToFilePath:filePath withCallback:callback];
+            });
         }
     });
     dispatch_source_set_cancel_handler(source, ^(void){
